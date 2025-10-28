@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *************************************************************
 
-FROM python:3.13.2-slim AS builder
+FROM 815941290371.dkr.ecr.eu-west-1.amazonaws.com/dsp/cx/plt-dsp-vwg-python:alpine3.22.1-python3.13.2-arm64-2025.12.18.1 AS builder
 
 # Set environment variables
 ENV POETRY_VERSION=1.6.1 \
@@ -30,10 +30,14 @@ ENV POETRY_VERSION=1.6.1 \
 # Install Poetry
 ENV POETRY_HOME="/opt/poetry"
 ENV PATH="$POETRY_HOME/bin:$PATH"
-RUN apt-get update && apt-get install -y curl openssh-client && \
+#RUN apt-get update && apt-get install -y curl openssh-client && \
+#    curl -sSL https://install.python-poetry.org | POETRY_HOME=$POETRY_HOME python3 - && \
+#    chmod -R 755 $POETRY_HOME && \
+#    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apk add --no-cache curl openssh-client build-base rust cargo && \
     curl -sSL https://install.python-poetry.org | POETRY_HOME=$POETRY_HOME python3 - && \
-    chmod -R 755 $POETRY_HOME && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    chmod -R 755 $POETRY_HOME
 
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
@@ -43,10 +47,12 @@ RUN poetry install --only=main --no-interaction --no-ansi
 
 COPY . .
 
-FROM python:3.13.2-slim AS runtime
+FROM 815941290371.dkr.ecr.eu-west-1.amazonaws.com/dsp/cx/plt-dsp-vwg-python:alpine3.22.1-python3.13.2-arm64-2025.12.18.1 AS runtime
 
-RUN apt-get update && apt-get install -y curl libpq-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y curl libpq-dev && \
+#    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apk add --no-cache curl
 
 # Set working directory
 WORKDIR /app
@@ -78,4 +84,6 @@ RUN poetry env info && poetry install --only=main --no-interaction --no-ansi
 # Expose the port for uvicorn
 EXPOSE 8000
 
-CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "--factory", "test_orchestrator.app:create_app", "--proxy-headers", "--timeout-graceful-shutdown", "30"]
+ENTRYPOINT ["/opt/poetry/bin/poetry"]
+
+CMD ["run", "uvicorn", "--host", "0.0.0.0","--port", "8000","--factory", "test_orchestrator.app:create_app","--proxy-headers","--timeout-graceful-shutdown", "30"]

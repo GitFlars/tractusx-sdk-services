@@ -29,7 +29,7 @@ from fastapi import FastAPI, Depends
 
 from fastapi.security import APIKeyHeader
 
-from test_orchestrator.api import base_test_cases, cert_validation, industry_test_cases
+from test_orchestrator.api import base_test_cases, cert_validation, industry_test_cases, puris_test_cases
 from test_orchestrator.errors import (
     HTTPError,
     http_error_handler,
@@ -95,6 +95,10 @@ def create_app():
     app.include_router(industry_test_cases.router,
                        prefix='/test-cases/industry-core/v1',
                        tags=['Industry Core Tests'])
+
+    app.include_router(puris_test_cases.router,
+                       prefix='/test-cases/puris/v1',
+                       tags=['Puris Tests'])
 
     app.get('/_/health', status_code=200)(health)
 

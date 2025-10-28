@@ -1,0 +1,84 @@
+replicaCount: 1
+
+global:
+  env:
+    VERSIONAPP: 0.0.9
+
+image:
+  repository: '815941290371.dkr.ecr.eu-west-1.amazonaws.com'
+  path: 'dsp/cx/srv-dsp-cx-tractusx-self-cert'
+  app: 'test-orchestrator'
+  pullPolicy: Always
+
+serviceAccount:
+  name: "dev-jerakeen-tractusx-test-orchestrator-sa"
+
+service:
+  type: ClusterIP
+  portService: 8000
+  portContainer: 8000
+
+livenessProbe:
+  initialDelaySeconds: 16   # Delay before the first check (optional)
+  periodSeconds: 300        # Check every 5 minutes
+  timeoutSeconds: 10        # Wait up to 5 seconds for a response
+  failureThreshold: 1       # Restart after 1 failed probe (adjust as needed)
+readinessProbe:
+  initialDelaySeconds: 16
+  periodSeconds: 300      # Simulate "run once" by checking only once a day
+  timeoutSeconds: 10
+  failureThreshold: 1
+
+ingress:
+  enabled: true
+  className: "alb"
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.drop_invalid_header_fields.enabled=true
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/scheme: "internal"
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:334267768943:certificate/9f24cb5b-92f4-4073-a966-d578788a5c7d
+    alb.ingress.kubernetes.io/load-balancer-name: jerakeen-testbed-alb
+  hosts:
+    - paths:
+        - path: /test-cases/
+          pathType: Prefix
+  tls: []
+
+dt_pull_service:
+  url: "http://dev-jerakeen-srv-dsp-cx-tractusx-self-cert-dt-pull-service.jerakeen.svc.cluster.local:8001"
+  auth:
+    apiKey:
+      key: "X-Api-Key"
+      valueFrom:
+        secretKeyRef:
+          name: tractusx-self-cert-secret-keys
+          key: TRACTUSX_SELF_CERT_DT_PULL_SERVICE
+
+auth:
+  apiKey:
+    valueFrom:
+      secretKeyRef:
+        name: tractusx-self-cert-secret-keys
+        key: TRACTUSX_SELF_CERT_TEST_ORCHESTRATOR
+
+env:
+#  - name: DT_PULL_SERVICE_ADDRESS
+#    value: "http://dt-pull-service.jerakeen.svc.cluster.local:8001"
+#  - name: DT_PULL_SERVICE_API_KEY_HEADER
+#    value: X-Api-Key
+  - name: DT_PULL_SERVICE_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: tractusx-self-cert-secret-keys
+        key: TRACTUSX_SELF_CERT_DT_PULL_SERVICE
+#  - name: API_KEY_BACKEND_HEADER
+#    value: X-Api-Key
+  - name: API_KEY_BACKEND
+    valueFrom:
+      secretKeyRef:
+        name: edc-auth-key-jerakeen
+        key: auth-key

@@ -43,7 +43,7 @@ python-dotenv = "^1.0.1"
 tractusx-sdk = "^0.0.7"
 fastapi = "0.115.7"
 httpx = "^0.28.1"
-python = "^3.12.2"
+python = "^3.13.2"
 requests = "^2.32.3"
 uvicorn = "0.30.3"
 
@@ -61,3 +61,13 @@ max-line-length = 120
 max-args = 8
 max-locals=20
 disable = ["R0903", "R0917", "W0621", "W1203"]
+
+[[tool.poetry.source]]
+name = "dsp-cache"
+url = "https://dsp-cache-artifact-815941290371.d.codeartifact.eu-west-1.amazonaws.com/pypi/dsp-cache-maven/simple/"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "dsp-private"
+url = "https://dsp-private-artifact-815941290371.d.codeartifact.eu-west-1.amazonaws.com/pypi/dsp-private-maven/simple/"
+priority = "supplemental"

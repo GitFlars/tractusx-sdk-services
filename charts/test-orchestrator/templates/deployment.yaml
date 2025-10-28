@@ -26,6 +26,7 @@ metadata:
   name: {{ include "test-orchestrator.fullname" . }}
   labels:
     {{- include "test-orchestrator.labels" . | nindent 4 }}
+    versionapp: {{.Values.global.env.VERSIONAPP}}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -49,14 +50,13 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "test-orchestrator.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}/{{ .Values.image.path }}:{{ .Values.image.app }}-{{ .Values.global.env.VERSIONAPP | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -66,11 +66,17 @@ spec:
             - name: DT_PULL_SERVICE_ADDRESS
               value: {{ .Values.dt_pull_service.url }}
             - name: DT_PULL_SERVICE_API_KEY
-              value: {{ .Values.dt_pull_service.auth.apiKey.value }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.dt_pull_service.auth.apiKey.valueFrom.secretKeyRef.name | quote }}
+                  key: {{ .Values.dt_pull_service.auth.apiKey.valueFrom.secretKeyRef.key | quote }}
             - name: DT_PULL_SERVICE_API_KEY_HEADER
               value: {{ .Values.dt_pull_service.auth.apiKey.key }}
             - name: API_KEY_BACKEND
-              value: {{ .Values.auth.apiKey.value }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.apiKey.valueFrom.secretKeyRef.name | quote }}
+                  key: {{ .Values.auth.apiKey.valueFrom.secretKeyRef.key | quote }}
             - name: API_KEY_BACKEND_HEADER
               value: {{ .Values.auth.apiKey.key }}
           livenessProbe:

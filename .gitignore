@@ -1,0 +1,78 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.tmp
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+!.idea/codeStyles/
+!.idea/copyright/*
+!.idea/fileTemplates/
+*.iws
+*.iml
+*.ipr
+
+### Mac ###
+.DS_Store
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### docker-compose ###
+.env
+
+### terraform ###
+**/.terraform/*
+.terraform.*
+*.tfstate
+*.tfstate.*
+terraform-outputs.json
+terraform-outputs-safe.json
+
+### Maven generated files ###
+dependency-reduced-pom.xml
+
+
+### EDC Binaries ###
+/connector/**/bin/
+### Local files ###
+dev/local/*
+/local/testing/api-tests/variable.env
+/local/testing/api-tests/variable.ps1
+local/testing/api-tests/__pycache__/
+
+### Cucumber ###
+/irs-cucumber-tests/report.json
+
+### Local documentation build ###
+node_modules
+docs/src/diagram-replacer/generated-adocs
+docs/src/diagram-replacer/package-lock.json
+docs/src/diagram-replacer/package.json
+docs/src/diagram-replacer/plantuml.jar
+
+# Helm Chart Dependencies
+/charts/item-relationship-service/Chart.lock
+/charts/item-relationship-service/charts/
+/docs/src/api/irs-api.actual.yaml
+/.github/workflows/custom/
